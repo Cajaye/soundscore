@@ -65,7 +65,7 @@ const Header = () => {
             <li>
               <Link
                 href={user.id}
-                className="flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-4"
               >
                 <Avatar>
                   <AvatarImage src={user.profileImageUrl} />

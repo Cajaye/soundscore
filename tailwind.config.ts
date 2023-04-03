@@ -1,8 +1,8 @@
-import { type Config } from "tailwindcss";
+// @ts-nocheck
+import type { Config } from "tailwindcss";
 
 import { fontFamily } from "tailwindcss/defaultTheme";
 
-/** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class", '[data-theme="dark"]'],
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
