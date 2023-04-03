@@ -11,7 +11,7 @@ const Header = () => {
   if (!isLoaded) return <div />;
 
   return (
-    <header className="flex items-center justify-between border-b border-b-slate-600 p-4">
+    <header className="flex items-center justify-between border-b border-b-slate-600 p-4 w-full">
       <div className="flex items-center justify-center">
         <Link href="/">
           <Icons.logo className="mr-2 h-4 w-4" />
@@ -19,7 +19,7 @@ const Header = () => {
         <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
           <Link href="/">Soundscore</Link>
         </h1>
-      </div>
+          </div>
       <nav>
         <ul className="flex items-center justify-center gap-2">
           <li>
