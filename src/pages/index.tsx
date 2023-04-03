@@ -10,14 +10,16 @@ type CustomSpotifyData = RouterOutputs["tracks"]["getAlbums"][number];
 
 const AlbumView = (props: CustomSpotifyData) => {
   return (
-    <div className="m-2 flex cursor-pointer items-start space-x-4 rounded-md border border-slate-600 bg-slate-800 hover:bg-slate-900">
+    <div className="m-2 flex sm:flex-col lg:flex-row cursor-pointer items-start space-x-4 rounded-md border border-slate-600 bg-slate-800 hover:bg-slate-900">
+      <div className="self-center p-2">
       <Image
-        className="object-cover"
+        className="object-cover rounded-md align-middle"
         alt={`${props.name}'s cover art`}
         src={props.cover_art_url as string}
-        width={100}
-        height={100}
-      />
+          width={100}
+          height={100}
+        />
+        </div>
       <div className="flex flex-col space-y-1 p-2">
         <p className="text-sm font-semibold">{props.artist}</p>
         <p className="text-sm">{`${props.name} - ${props.type}`}</p>
@@ -36,7 +38,7 @@ const Home: NextPage = () => {
   return (
     <PageLayout>
       <Header />
-      <div className="m-3">
+      <div className="grid grid-cols-4 gap-3">
         {data?.map((album) => {
           return <AlbumView {...album} key={album.id} />;
         })}
