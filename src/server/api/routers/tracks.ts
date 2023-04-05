@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
+import type { Album, SpotifyFullAlbumData } from "~/types/album";
 
 const spotifyToken = async () => {
   const client_id = process.env.SPOTIFY_CLIENT_ID as string;
@@ -30,53 +31,26 @@ const spotifyToken = async () => {
   return t;
 };
 
-interface SpotifyFullAlbumData {
-  albums: {
-    href: string;
-    items: {
-      id: string;
-      name: string;
-      album_group: string;
-      album_type: string;
-      artists: {
-        external_urls: { spotify: string };
-        href: string;
-        id: string;
-        name: string;
-        type: string;
-        uri: string;
-      }[];
-      available_markets: [];
-      external_urls: { spotify: string };
-      href: string;
-      images: {
-        height: number;
-        url: string;
-        width: number;
-      }[];
-      release_date: string;
-      release_date_precision: string;
-      total_tracks: number;
-      type: string;
-      uri: string;
-      isPlayable: boolean;
-    }[];
-    limit: number;
-    offset: number;
-    previous: null;
-    total: number;
-  };
-}
+const simplifyAlbumData = (items: SpotifyFullAlbumData["albums"]["items"]) => {
+  return items.map((item) => {
+    return {
+      id: item.id,
+      name: item.name,
+      type: item.album_type,
+      artist: item.artists?.[0]?.name,
+      cover_art_url: item.images?.[0]?.url,
+      release_date: item.release_date,
+      total_tracks: item.total_tracks,
+    };
+  });
+};
 
 export const tracksRouter = createTRPCRouter({
-  getAlbums: publicProcedure.query(async ({ ctx }) => {
+  getAlbums: publicProcedure.query(async () => {
     const token = await spotifyToken();
-    console.log(token);
-
-    const artist = "Tyler The Creator";
 
     const response = await fetch(
-      `https://api.spotify.com/v1/search?type=album&include_external=audio&q=${artist}`,
+      `https://api.spotify.com/v1/browse/new-releases`,
       {
         headers: {
           Authorization: "Bearer " + token.access_token,
@@ -91,16 +65,48 @@ export const tracksRouter = createTRPCRouter({
 
     const data = (await response.json()) as SpotifyFullAlbumData;
 
-    return data.albums.items.map((item) => {
-      return {
-        id: item.id,
-        name: item.name,
-        type: item.album_type,
-        artist: item.artists?.[0]?.name,
-        cover_art_url: item.images?.[0]?.url,
-        release_date: item.release_date,
-        total_tracks: item.total_tracks,
-      };
-    });
+    return simplifyAlbumData(data.albums.items);
   }),
+
+  getSingleAlbum: publicProcedure
+    .input(z.object({ albumId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const token = await spotifyToken();
+
+      const response = await fetch(
+        `https://api.spotify.com/v1/albums/${input.albumId}`,
+        {
+          headers: {
+            Authorization: "Bearer " + token.access_token,
+            "Content-type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
+      }
+
+      const data = (await response.json()) as Album;
+
+      return {
+        id: data.id,
+        name: data.name,
+        link: data.external_urls.spotify,
+        artist: data.artists[0]?.name,
+        score: 0, //score and ratings from prisma
+        ratings: 0,
+        release_date: data.release_date,
+        total_tracks: data.total_tracks,
+        image: data.images[0]?.url,
+        tracks: data.tracks.items.map((item) => {
+          return {
+            id: item.id,
+            name: item.name,
+            artists: item.artists.map((artist) => artist.name),
+            image: data.images[0]?.url,
+          };
+        }),
+      };
+    }),
 });

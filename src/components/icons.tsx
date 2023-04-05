@@ -1,9 +1,9 @@
 import {
   LucideProps,
   Twitter,
-  LogInIcon,
-  LogOutIcon,
-  ActivityIcon,
+  LogIn,
+  LogOut,
+  Activity,
   Music,
   type Icon as LucideIcon,
 } from "lucide-react";
@@ -12,9 +12,9 @@ export type Icon = LucideIcon;
 
 export const Icons = {
   twitter: Twitter,
-  logIn: LogInIcon,
-  logOut:LogOutIcon,
-  logo: ActivityIcon,
+  logIn: LogIn,
+  logOut:LogOut,
+  logo: Activity,
   music:Music,
   gitHub: (props: LucideProps) => (
     <svg viewBox="0 0 438.549 438.549" {...props}>

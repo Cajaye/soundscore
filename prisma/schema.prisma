@@ -8,8 +8,13 @@ datasource db {
     relationMode = "prisma"
 }
 
-model Example {
+model Rate {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    album     String?  @db.VarChar(300)
+    track     String?  @db.VarChar(300)
+    rateType  String   @db.VarChar(4) //fire, ass, mid
+    userId    String
+
+    @@index([userId])
 }
