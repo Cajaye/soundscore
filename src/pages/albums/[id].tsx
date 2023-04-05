@@ -14,6 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { Button } from "~/components/ui/button";
+import { Textarea } from "~/components/ui/textarea"
+ 
 
 const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
   const { data } = api.tracks.getSingleAlbum.useQuery({ albumId: id });
@@ -29,8 +32,8 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
       <PageLayout>
         <div className="mx-32">
           <div className="m-4 flex w-full flex-col justify-center">
-            <div className="border border-slate-600 bg-slate-800">
-              <div className="flex w-full cursor-pointer items-center gap-6 rounded-md">
+            <div className="border border-slate-600 bg-slate-800 rounded-md">
+              <div className="flex cursor-pointer items-center gap-6 rounded-md">
                 <div className="w-full">
                   <Link href={data.link}>
                     <Image
@@ -43,33 +46,43 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
                     />
                   </Link>
                 </div>
-                <div className="w-full text-center">
-                  <p className="text-sm font-bold">({data.release_date})</p>
-                  <p className="text-2xl font-bold">{data.name}</p>
+                <div className="w-full">
+                  <p className="text-xs font-bold">({data.release_date})</p>
+                  <p className="text-3xl font-bold">{data.name}</p>
                   <p className="pb-2 text-lg font-semibold">{data.artist}</p>
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center">
                     <Icons.logo className="mr-2 h-4 w-4" />
                     <p className="text-sm">Soundscore - {data.score}%</p>
                   </div>
-                  <p className="text-sm">Ratings - {data.ratings}</p>
+                  <div className="flex items-center">
+                    <Icons.logo className="mr-2 h-4 w-4" />
+                    <p className="text-sm">Ratings - {data.ratings}</p>
+                  </div>
                 </div>
               </div>
             </div>
-                      <div className="mt-4">
-                          <div className="mb-2">
-                              <p>Would you like to rate this album?</p>
-                          </div>
-              <Select>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Rate Scale" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fire">Fire</SelectItem>
-                  <SelectItem value="mid">Mid</SelectItem>
-                  <SelectItem value="trash">Trash</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="mt-4">
+              <div className="mb-2">
+                <p>Would you like to rate this album?</p>
+              </div>
+              <form>
+                <Select>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Rate Scale" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fire">Fire</SelectItem>
+                    <SelectItem value="mid">Mid</SelectItem>
+                    <SelectItem value="trash">Trash</SelectItem>
+                  </SelectContent>
+                              </Select>
+                              <Textarea className="mt-5" placeholder="Type your message here." />
+                <Button type="submit" className=" mt-5 bg-white text-black">Submit</Button>
+              </form>
+                      </div>
+                      <div className="mt-5">
+                          <h2 className="text-3xl font-bold">Tracks in this album</h2>
+                      </div>
           </div>
         </div>
       </PageLayout>
