@@ -5,7 +5,6 @@ import ssgHelper from "~/helpers/ssgHelper";
 import { api } from "~/utils/api";
 import Image from "next/image";
 import { Icons } from "~/components/icons";
-import { date } from "zod";
 import Link from "next/link";
 import {
   Select,
@@ -15,8 +14,8 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Button } from "~/components/ui/button";
-import { Textarea } from "~/components/ui/textarea"
- 
+import { Textarea } from "~/components/ui/textarea";
+import Track from "~/components/tracks";
 
 const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
   const { data } = api.tracks.getSingleAlbum.useQuery({ albumId: id });
@@ -32,8 +31,8 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
       <PageLayout>
         <div className="mx-32">
           <div className="m-4 flex w-full flex-col justify-center">
-            <div className="border border-slate-600 bg-slate-800 rounded-md">
-              <div className="flex cursor-pointer items-center gap-6 rounded-md">
+            <div className="rounded-md border border-slate-600 bg-slate-800">
+              <div className="flex cursor-pointer items-center rounded-md">
                 <div className="w-full">
                   <Link href={data.link}>
                     <Image
@@ -75,14 +74,24 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
                     <SelectItem value="mid">Mid</SelectItem>
                     <SelectItem value="trash">Trash</SelectItem>
                   </SelectContent>
-                              </Select>
-                              <Textarea className="mt-5" placeholder="Type your message here." />
-                <Button type="submit" className=" mt-5 bg-white text-black">Submit</Button>
+                </Select>
+                <Textarea
+                  className="mt-5"
+                  placeholder="Type your message here."
+                />
+                <Button type="submit" className=" mt-5 bg-white text-black">
+                  Submit
+                </Button>
               </form>
-                      </div>
-                      <div className="mt-5">
-                          <h2 className="text-3xl font-bold">Tracks in this album</h2>
-                      </div>
+            </div>
+            <div className="mt-5">
+              <h2 className="text-3xl font-bold mb-2">Tracks in this album</h2>
+              <div className="flex flex-col gap-2">
+              {data.tracks.map((track) => (
+                <Track {...track} key={track.id} />
+              ))}
+                 </div>
+            </div>
           </div>
         </div>
       </PageLayout>

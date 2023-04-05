@@ -35,6 +35,7 @@ const simplifyAlbumData = (items: SpotifyFullAlbumData["albums"]["items"]) => {
   return items.map((item) => {
     return {
       id: item.id,
+      href: `/albums/${item.id}`,
       name: item.name,
       type: item.album_type,
       artist: item.artists?.[0]?.name,
@@ -102,9 +103,16 @@ export const tracksRouter = createTRPCRouter({
         tracks: data.tracks.items.map((item) => {
           return {
             id: item.id,
+            href: `/tracks/${item.id}`,
             name: item.name,
-            artists: item.artists.map((artist) => artist.name),
-            image: data.images[0]?.url,
+            type: item.type,
+            release_date: data.release_date,
+            total_tracks: 0,
+            artist: item.artists
+              .flat()
+              .map((artist) => artist.name)
+              .join(", "),
+            cover_art_url: data.images[0]?.url,
           };
         }),
       };
