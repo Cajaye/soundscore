@@ -90,13 +90,28 @@ export const tracksRouter = createTRPCRouter({
 
       const data = (await response.json()) as Album;
 
+      const rate = await ctx.prisma.rate.findMany({
+        where: {
+          album: input.albumId,
+        },
+      });
+
+      const fire = rate.filter((r) => r.rateType === "fire").length;
+      const mid = rate.filter((r) => r.rateType === "mid").length;
+      const trash = rate.filter((r) => r.rateType === "trash").length;
+
+      const total = fire + mid + trash;
+      const soundscore: number = isNaN(Math.floor((fire / total) * 100))
+        ? 0
+        : Math.floor((fire / total) * 100);
+
       return {
         id: data.id,
         name: data.name,
         link: data.external_urls.spotify,
         artist: data.artists[0]?.name,
-        score: 0, //score and ratings from prisma
-        ratings: 0,
+        score: soundscore, //score and ratings from prisma
+        ratings: total,
         release_date: data.release_date,
         total_tracks: data.total_tracks,
         image: data.images[0]?.url,
