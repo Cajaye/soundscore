@@ -6,7 +6,7 @@ import superjson from "superjson";
 const ssgHelper = () => {
   return createProxySSGHelpers({
     router: appRouter,
-    ctx: { prisma },
+    ctx: { prisma, userId: null },
     transformer: superjson, // optional - adds superjson serialization
   });
 };

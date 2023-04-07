@@ -2,49 +2,9 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import type { Album, SpotifyFullAlbumData } from "~/types/album";
-
-const spotifyToken = async () => {
-  const client_id = process.env.SPOTIFY_CLIENT_ID as string;
-  const client_secret = process.env.SPOTIFY_CLIENT_SECRET as string;
-
-  const token = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-
-      Accept: "application/json",
-
-      Authorization:
-        "Basic " +
-        Buffer.from(client_id + ":" + client_secret).toString("base64"),
-    },
-    body: "grant_type=client_credentials",
-  });
-
-  const t = (await token.json()) as {
-    access_token: string;
-    token_type: string;
-    expires_in: number;
-  };
-
-  return t;
-};
-
-const simplifyAlbumData = (items: SpotifyFullAlbumData["albums"]["items"]) => {
-  return items.map((item) => {
-    return {
-      id: item.id,
-      href: `/albums/${item.id}`,
-      name: item.name,
-      type: item.album_type,
-      artist: item.artists?.[0]?.name,
-      cover_art_url: item.images?.[0]?.url,
-      release_date: item.release_date,
-      total_tracks: item.total_tracks,
-    };
-  });
-};
+import spotifyToken from "~/helpers/spotifyToken";
+import simplifyAlbumData from "~/helpers/simplifyAlbumData";
+import calcsoundscore from "~/helpers/soundscore";
 
 export const tracksRouter = createTRPCRouter({
   getAlbums: publicProcedure.query(async () => {
@@ -96,14 +56,7 @@ export const tracksRouter = createTRPCRouter({
         },
       });
 
-      const fire = rate.filter((r) => r.rateType === "fire").length;
-      const mid = rate.filter((r) => r.rateType === "mid").length;
-      const trash = rate.filter((r) => r.rateType === "trash").length;
-
-      const total = fire + mid + trash;
-      const soundscore: number = isNaN(Math.floor((fire / total) * 100))
-        ? 0
-        : Math.floor((fire / total) * 100);
+      const soundscore = calcsoundscore(rate);
 
       return {
         id: data.id,
@@ -111,7 +64,7 @@ export const tracksRouter = createTRPCRouter({
         link: data.external_urls.spotify,
         artist: data.artists[0]?.name,
         score: soundscore, //score and ratings from prisma
-        ratings: total,
+        ratings: rate.length,
         release_date: data.release_date,
         total_tracks: data.total_tracks,
         image: data.images[0]?.url,

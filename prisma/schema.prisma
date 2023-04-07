@@ -13,6 +13,7 @@ model Rate {
     createdAt DateTime @default(now())
     album     String?  @db.VarChar(300)
     track     String?  @db.VarChar(300)
+    review    String?  @db.VarChar(300)
     rateType  String   @db.VarChar(10) //fire, ass, mid
     userId    String
 
