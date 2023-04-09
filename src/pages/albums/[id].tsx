@@ -1,7 +1,7 @@
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { PageLayout } from "~/components/layout";
-import ssgHelper from "~/helpers/ssgHelper";
+import ssgHelper from "~/server/helpers/ssgHelper";
 import { api } from "~/utils/api";
 import Image from "next/image";
 import { Icons } from "~/components/icons";
@@ -85,12 +85,12 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
               </form>
             </div>
             <div className="mt-5">
-              <h2 className="text-3xl font-bold mb-2">Tracks in this album</h2>
+              <h2 className="mb-2 text-3xl font-bold">Tracks in this album</h2>
               <div className="flex flex-col gap-2">
-              {data.tracks.map((track) => (
-                <Track {...track} key={track.id} />
-              ))}
-                 </div>
+                {data.tracks.map((track) => (
+                  <Track {...track} key={track.id} />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -103,9 +103,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   const ssg = ssgHelper();
   const id = context.params?.id as string;
 
-  if (typeof id !== "string") {
-    throw new Error("Album does not exist");
-  }
+  if (typeof id !== "string") throw new Error("Album does not exist");
 
   await ssg.tracks.getSingleAlbum.prefetch({ albumId: id });
 

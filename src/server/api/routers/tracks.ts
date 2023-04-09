@@ -2,9 +2,9 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import type { Album, SpotifyFullAlbumData } from "~/types/album";
-import spotifyToken from "~/helpers/spotifyToken";
-import simplifyAlbumData from "~/helpers/simplifyAlbumData";
-import calcsoundscore from "~/helpers/soundscore";
+import simplifyAlbumData from "~/server/helpers/simplifyAlbumData";
+import calcsoundscore from "~/server/helpers/soundscore";
+import spotifyToken from "~/server/helpers/spotifyToken";
 
 export const tracksRouter = createTRPCRouter({
   getAlbums: publicProcedure.query(async () => {
