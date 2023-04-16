@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import type { Album, SpotifyFullAlbumData } from "~/types/album";
 import simplifyAlbumData from "~/server/helpers/simplifyAlbumData";
@@ -84,5 +88,45 @@ export const tracksRouter = createTRPCRouter({
           };
         }),
       };
+    }),
+  rateAlbum: privateProcedure
+    .input(
+      z.object({
+        album: z.string(),
+        review: z.string().max(300),
+        rateType: z.string().min(5).max(10),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.userId;
+
+      //rate limiter
+
+      const findPrevRate = await ctx.prisma.rate.findFirst({
+        where: {
+          userId,
+          album: input.album,
+        },
+      });
+
+      if (findPrevRate) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot vote twice",
+        });
+      }
+
+      //allow user to edit vote
+
+      const rate = await ctx.prisma.rate.create({
+        data: {
+          userId,
+          album: input.album,
+          review: input.review,
+          rateType: input.rateType,
+        },
+      });
+
+      return rate;
     }),
 });

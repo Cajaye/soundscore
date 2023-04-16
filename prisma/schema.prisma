@@ -14,7 +14,7 @@ model Rate {
     album     String?  @db.VarChar(300)
     track     String?  @db.VarChar(300)
     review    String?  @db.VarChar(300)
-    rateType  String   @db.VarChar(10) //fire, ass, mid
+    rateType  String   @db.VarChar(10) //fire, mid, ass
     userId    String
 
     @@index([userId])

@@ -4,6 +4,8 @@ import Head from "next/head";
 import { Inter as FontSans } from "next/font/google"
 
 import { api } from "~/utils/api";
+import { Toaster } from "~/components/ui/toaster"
+ 
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -27,8 +29,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         <meta name="description" content="For music rating" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Component {...pageProps} />
+        <Component {...pageProps} />
       </ClerkProvider>
+       <Toaster />
     </>
   );
 };

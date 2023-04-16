@@ -5,7 +5,6 @@ import ssgHelper from "~/server/helpers/ssgHelper";
 import { api } from "~/utils/api";
 import Image from "next/image";
 import { Icons } from "~/components/icons";
-import Link from "next/link";
 import {
   Select,
   SelectContent,
@@ -13,14 +12,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import Track from "~/components/tracks";
+import { useState } from "react";
+
+import { useToast } from "~/hooks/ui/use-toast"
 
 const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
   const { data } = api.tracks.getSingleAlbum.useQuery({ albumId: id });
 
+  const { toast } = useToast();
+
+  const [review, setReview] = useState("");
+  const [rateType, setRateType] = useState("");
+
   if (!data) return <div>No data</div>;
+
+  const ctx = api.useContext()
+
+  const { mutate, isLoading: isRating } = api.tracks.rateAlbum.useMutation({
+    onSuccess: () => {
+      setReview("")
+      toast({
+          description:"Rated album successfully"
+        })
+      void ctx.tracks.getSingleAlbum.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+         toast({
+          description: errorMessage[0]
+        })
+      } else {
+        toast({
+          description: "Failed to post, please try again later!"
+        })
+      }
+    },
+  })
 
   return (
     <>
@@ -34,7 +66,7 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
             <div className="rounded-md border border-slate-600 bg-slate-800">
               <div className="flex cursor-pointer items-center rounded-md">
                 <div className="w-full">
-                  <Link href={data.link}>
+                  <a href={data.link} target="_blank">
                     <Image
                       src={data.image as string}
                       priority
@@ -43,7 +75,7 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
                       height={400}
                       className="object-cover"
                     />
-                  </Link>
+                  </a>
                 </div>
                 <div className="w-full">
                   <p className="text-xs font-bold">({data.release_date})</p>
@@ -64,8 +96,8 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
               <div className="mb-2">
                 <p>Would you like to rate this album?</p>
               </div>
-              <form>
-                <Select>
+              <form onSubmit={() => mutate({review, rateType, album:id})}>
+                <Select disabled={isRating} value={rateType} onValueChange={(value) => setRateType(value)}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Rate Scale" />
                   </SelectTrigger>
@@ -76,10 +108,13 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
                   </SelectContent>
                 </Select>
                 <Textarea
+                  disabled={isRating}
+                  onChange={(e) => setReview(e.target.value)}
+                  value={review}
                   className="mt-5"
                   placeholder="Type your message here."
                 />
-                <Button type="submit" className=" mt-5 bg-white text-black">
+                <Button disabled={isRating} type="submit" className=" mt-5 bg-white text-black">
                   Submit
                 </Button>
               </form>
