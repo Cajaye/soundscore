@@ -93,8 +93,8 @@ export const tracksRouter = createTRPCRouter({
     .input(
       z.object({
         album: z.string(),
-        review: z.string().max(300),
-        rateType: z.string().min(5).max(10),
+        review: z.string().min(10).max(300),
+        rateType: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {

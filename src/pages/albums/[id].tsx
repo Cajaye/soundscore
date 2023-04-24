@@ -5,6 +5,8 @@ import ssgHelper from "~/server/helpers/ssgHelper";
 import { api } from "~/utils/api";
 import Image from "next/image";
 import { Icons } from "~/components/icons";
+import { toast } from "react-hot-toast";
+
 import {
   Select,
   SelectContent,
@@ -18,12 +20,8 @@ import { Textarea } from "~/components/ui/textarea";
 import Track from "~/components/tracks";
 import { useState } from "react";
 
-import { useToast } from "~/hooks/ui/use-toast"
-
 const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
   const { data } = api.tracks.getSingleAlbum.useQuery({ albumId: id });
-
-  const { toast } = useToast();
 
   const [review, setReview] = useState("");
   const [rateType, setRateType] = useState("");
@@ -35,21 +33,15 @@ const SingleAlbumPage: NextPage<{ id: string }> = ({ id }) => {
   const { mutate, isLoading: isRating } = api.tracks.rateAlbum.useMutation({
     onSuccess: () => {
       setReview("")
-      toast({
-          description:"Rated album successfully"
-        })
+      toast.success("Album rated successfully")
       void ctx.tracks.getSingleAlbum.invalidate();
     },
     onError: (e) => {
       const errorMessage = e.data?.zodError?.fieldErrors.content;
       if (errorMessage && errorMessage[0]) {
-         toast({
-          description: errorMessage[0]
-        })
+         toast.error(errorMessage[0])
       } else {
-        toast({
-          description: "Failed to post, please try again later!"
-        })
+         toast.error("Failed to post, please try again later!")
       }
     },
   })
